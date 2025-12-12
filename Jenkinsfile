@@ -1,0 +1,2 @@
+@Library('jenkinsLibs') _
+pipelineGeneralReporteSeguridadCalidad()

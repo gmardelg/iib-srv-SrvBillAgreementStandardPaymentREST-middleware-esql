@@ -1,0 +1,6 @@
+repository      : 'https://github.com/BancoPopular/iib-srv-SrvBillAgreementStandardPaymentREST-middleware-esql.git'
+credentials     : 'leeroy-jenkins'
+imageName       : 'iib-srv-SrvBillAgreementStandardPaymentREST-middleware-esql'
+repositorieJfrog       : 'integraciones'
+managementName: ''
+sscProject:  ''
