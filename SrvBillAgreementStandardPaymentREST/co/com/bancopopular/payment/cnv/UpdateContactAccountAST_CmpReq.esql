@@ -1,0 +1,92 @@
+BROKER SCHEMA bancopopular.service.ast
+
+/***********************************************************************
+ * MÓDULO : UpdateContactAccountAST_CmpReq
+ * OBJETIVO : Preparar el mensaje de request para enviar al backend AST
+ * FECHA    : 17/12/2025
+ * AUTOR    : Célula Habilitadora - Banco Popular
+ * DESCRIPCIÓN :
+ *   Construye el mensaje JSON de solicitud hacia AST, tomando los datos
+ *   del canal. Además, preserva cabeceras MQ para la respuesta y genera 
+ *   la trama de auditoría en formato plano.
+ ***********************************************************************/
+CREATE COMPUTE MODULE UpdateContactAccountAST_CmpReq
+ CREATE FUNCTION Main() RETURNS BOOLEAN
+ BEGIN
+
+  /******************************************************/
+  -- Copiar cabeceras de mensaje
+  /******************************************************/
+  SET OutputRoot.MQMD   = InputRoot.MQMD;
+  SET OutputRoot.MQRFH2 = InputRoot.MQRFH2;
+  
+  /**********************/
+  -- Declarar referencias
+  /**********************/
+  DECLARE refEnv REFERENCE TO Environment.Variables.headers;
+  DECLARE refMQRFH2 REFERENCE TO OutputRoot.MQRFH2;
+  DECLARE refInpRoot REFERENCE TO InputRoot;
+  DECLARE refInp REFERENCE TO InputRoot.JSON.Data;
+
+  --Establece cabeceras para generar respuesta
+  SET refEnv.MQMD   = InputRoot.MQMD;
+  SET refEnv.MQRFH2 = InputRoot.MQRFH2;
+  SET refEnv.MQRFH2.usr.log.idLog = CTE_IDLOG2;
+
+  DECLARE refInpHeaders REFERENCE TO refMQRFH2.usr.msgOrig.Data.Headers;
+
+  --Valores de mensaje request requeridos para Auditoria AST
+  DECLARE channel CHARACTER FIELDVALUE(refInpHeaders."X-Channel");
+  DECLARE userId  CHARACTER FIELDVALUE(refInpHeaders."X-Identserialnum");
+  DECLARE ipAddr  CHARACTER FIELDVALUE(refInpHeaders."X-Ipaddr");
+
+  --Auditoria en BD
+  SET refMQRFH2.usr.log.idLog = CTE_IDLOG2;
+  CALL common.procedures.general.createMsgLogs(refMQRFH2, refMQRFH2.usr.log.idLog, CTE_PROTOCOL_WS);
+
+  --Establece nombres de proveedor y aplicación
+  SET refMQRFH2.usr.log.nmProvider  = CTE_PROVIDER;
+  SET refMQRFH2.usr.log.nameApplication = CTE_APLICATION;
+  
+  --Crea contenedor Body  
+  CREATE FIELD OutputRoot.JSON.Data;
+  DECLARE refOut REFERENCE TO OutputRoot.JSON.Data;
+  
+  -- Información de datos del contacto
+  SET refOut.contact.contact_info.id_type   = refInp.ContactInfo.GovIssueIdent.GovIssueIdentType;
+  SET refOut.contact.contact_info.id_number = refInp.ContactInfo.GovIssueIdent.IdentSerialNum;
+  SET refOut.contact.contact_info.name      = refInp.ContactInfo.ContactName;
+  SET refOut.contact.contact_info.nickname  = refInp.ContactInfo.NickName;
+  
+  -- Información bancaria
+  SET refOut.contact.bank.bank_code         = refInp.ContactInfo.DepAcctIdTo.DepAcctId.BankInfo.BankId;
+  SET refOut.contact.bank.bank_name         = refInp.ContactInfo.DepAcctIdTo.DepAcctId.BankInfo.Name;
+  
+  -- Información de la cuenta
+  SET refOut.contact.account.account_type   = refInp.ContactInfo.DepAcctIdTo.DepAcctId.AcctType;
+  SET refOut.contact.account.account_number = refInp.ContactInfo.DepAcctIdTo.DepAcctId.AcctId;
+  
+  -- Marcado como favorito
+  SET refOut.contact.favorite               = refInp.ContactInfo.Favorite;
+  
+  --Envia mensaje de Auditoria
+  PROPAGATE TO TERMINAL CTE_OUT1 DELETE NONE;
+
+  --Se anulan las cabeceras MQMD y MQRFH2 para que solo viaje al Request lo requerido por el back-end   
+  SET OutputRoot.MQMD  = NULL;
+  SET OutputRoot.MQRFH2  = NULL;
+  
+  --Establecer Endpoint y Timeout para consumir WS
+  SET OutputLocalEnvironment.Destination.REST.Request.BaseURL = refMQRFH2.usr.service.baseURL;
+  SET OutputLocalEnvironment.Destination.REST.Request.Timeout = CAST(refMQRFH2.usr.service.timeOut AS INTEGER);
+  
+  -- Enviar parámetros
+  SET OutputLocalEnvironment.Destination.REST.Request.Parameters."X-Request-ID" = UUIDASCHAR;
+  SET OutputLocalEnvironment.Destination.REST.Request.Parameters."X-User-ID"    = userId;
+  SET OutputLocalEnvironment.Destination.REST.Request.Parameters."X-Channel"    = channel;
+  SET OutputLocalEnvironment.Destination.REST.Request.Parameters."X-Origin-IP"  = ipAddr;
+  SET OutputLocalEnvironment.Destination.REST.Request.Parameters.contact_id     = refInp.ContactInfo.ContactId;
+
+  RETURN TRUE;
+ END;
+END MODULE;
