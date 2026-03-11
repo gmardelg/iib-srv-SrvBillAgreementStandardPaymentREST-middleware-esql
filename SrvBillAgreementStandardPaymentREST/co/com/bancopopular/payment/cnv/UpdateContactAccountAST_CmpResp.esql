@@ -84,7 +84,7 @@ CREATE COMPUTE MODULE UpdateContactAccountAST_CmpResp
   SET refOut.MsgRsHdr.Status.EndDt        = CURRENT_TIMESTAMP;
   
   -- Información del contacId asignado en AST
-  SET refOut.ContactInfo.ContactId = refDataRes.contact_id;
+  SET refOut.ContactInfo.ContactId = refDataRes.contactid;
   
   -- Información de datos del contacto
   SET refOut.ContactInfo.ContactName                     = refDataRes.contact.contact_info.name;
