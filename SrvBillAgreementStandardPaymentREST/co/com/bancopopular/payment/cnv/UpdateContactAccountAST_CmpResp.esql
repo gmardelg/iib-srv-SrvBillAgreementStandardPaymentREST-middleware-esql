@@ -84,7 +84,7 @@ CREATE COMPUTE MODULE UpdateContactAccountAST_CmpResp
   SET refOut.MsgRsHdr.Status.EndDt        = CURRENT_TIMESTAMP;
   
   -- Información del contacId asignado en AST
-  SET refOut.ContactInfo.ContactId = refDataRes.contactid;
+  SET refOut.ContactInfo.ContactId = refDataRes.contact_id;
   
   -- Información de datos del contacto
   SET refOut.ContactInfo.ContactName                     = refDataRes.contact.contact_info.name;
@@ -111,7 +111,7 @@ CREATE COMPUTE MODULE UpdateContactAccountAST_CmpResp
         CALL common.procedures.global.cache.getDataErrorCache(codeBackend, CTE_CACHE_ERRORS, CTE_F_DESTINY, value);
 
         SET refOut.MsgRsHdr.Status.StatusCode            = COALESCE(value.codeError, CTE_CODE_DEFAULT);
-        SET refOut.MsgRsHdr.Status.ServerStatusCode      = codeBacken;
+        SET refOut.MsgRsHdr.Status.ServerStatusCode      = codeBackend;
         SET refOut.MsgRsHdr.Status.Severity              = value.severity;
         SET refOut.MsgRsHdr.Status.StatusDesc            = value.descError;
         SET refOut.MsgRsHdr.Status.AdditionalStatus.StatusCode    = value.codeError ; 
