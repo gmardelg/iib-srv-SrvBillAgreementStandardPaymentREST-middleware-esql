@@ -82,7 +82,7 @@ CREATE COMPUTE MODULE UpdateContactAccountAST_CmpReq
   
   -- Enviar parámetros
   SET OutputLocalEnvironment.Destination.REST.Request.Parameters."X-Request-ID" = UUIDASCHAR;
-  SET OutputLocalEnvironment.Destination.REST.Request.Parameters."X-User-ID"    = userId;
+  SET OutputLocalEnvironment.Destination.REST.Request.Parameters."X-User-ID"    = Goku;
   SET OutputLocalEnvironment.Destination.REST.Request.Parameters."X-Channel"    = channel;
   SET OutputLocalEnvironment.Destination.REST.Request.Parameters."X-Origin-IP"  = ipAddr;
   SET OutputLocalEnvironment.Destination.REST.Request.Parameters.contact_id     = refInp.ContactInfo.ContactId;
