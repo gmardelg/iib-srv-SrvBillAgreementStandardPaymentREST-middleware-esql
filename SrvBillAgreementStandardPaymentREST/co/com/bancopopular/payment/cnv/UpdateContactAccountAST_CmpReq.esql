@@ -54,7 +54,7 @@ CREATE COMPUTE MODULE UpdateContactAccountAST_CmpReq
 		
 		-- Información de datos del contacto
 		SET refOut.contact.contact_info.id_type   = refInp.ContactInfo.GovIssueIdent.GovIssueIdentType;
-		SET refOut.contact.contact_info.id_numberfalse = refInp.ContactInfo.GovIssueIdent.IdentSerialNum;
+		SET refOut.contact.contact_info.id_numberfalse = refInp.ContactInfo.GovIssueIdent.IdentSerialNumfalse;
 		SET refOut.contact.contact_info.name      = refInp.ContactInfo.ContactName;
 		SET refOut.contact.contact_info.nickname  = refInp.ContactInfo.NickName;
 		
