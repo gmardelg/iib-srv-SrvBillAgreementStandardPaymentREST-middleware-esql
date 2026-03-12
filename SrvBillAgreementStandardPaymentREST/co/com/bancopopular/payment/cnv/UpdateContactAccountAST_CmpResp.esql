@@ -35,11 +35,11 @@ CREATE COMPUTE MODULE UpdateContactAccountAST_CmpResp
     -- Copiar mensaje completo del backend y limpiar body
     DECLARE aux CHARACTER CTE_EMPTY;
     IF EXISTS(InputRoot.JSON.Data[]) THEN
-     SET OutputRoot.JSON = InputRoot.JSON;
-     SET aux = FIELDNAME(InputRoot.JSON);
+    	SET OutputRoot.JSON = InputRoot.JSON;
+    	SET aux = FIELDNAME(InputRoot.JSON);
     ELSE
-     SET OutputRoot.BLOB = InputRoot.BLOB;
-     SET aux = COALESCE(FIELDNAME(InputRoot.BLOB),CTE_DOMAIN);
+    	SET OutputRoot.BLOB = InputRoot.BLOB;
+    	SET aux = COALESCE(FIELDNAME(InputRoot.BLOB),CTE_DOMAIN);
     END IF;
     -- Asignación de valores de contexto de aplicación
     SET refMQRFH2.usr.log.nmProvider      = CTE_PROVIDER;
@@ -53,7 +53,7 @@ CREATE COMPUTE MODULE UpdateContactAccountAST_CmpResp
     ------------------------------------------------------------------
     SET OutputRoot.{aux} = NULL;
     
- CREATE FIELD OutputRoot.JSON.Data.Headers;
+	CREATE FIELD OutputRoot.JSON.Data.Headers;
     CREATE FIELD OutputRoot.JSON.Data.Body;
 
     DECLARE refOutHeaders REFERENCE TO OutputRoot.JSON.Data.Headers;
@@ -73,35 +73,35 @@ CREATE COMPUTE MODULE UpdateContactAccountAST_CmpResp
         -- ÉXITO: Respuesta canónica normal
         ----------------------------------------------------------------
 
-        SET refOut.MsgRsHdr.Status.StatusCode            = CTE_STATUSCODE;
-        SET refOut.MsgRsHdr.Status.ServerStatusCode      = CTE_SERVERSTATUSCODE;
-        SET refOut.MsgRsHdr.Status.Severity              = CTE_SEVERITY;
-        SET refOut.MsgRsHdr.Status.StatusDesc            = CTE_STATUSDESC;
-        SET refOut.MsgRsHdr.Status.AdditionalStatus.StatusCode    = CTE_STATUSCODE;
-  SET refOut.MsgRsHdr.Status.AdditionalStatus.ServerStatusCode  = CTE_SERVERSTATUSCODE;
-  SET refOut.MsgRsHdr.Status.AdditionalStatus.Severity    = CTE_SEVERITY;
-  SET refOut.MsgRsHdr.Status.AdditionalStatus.StatusDesc    = CTE_STATUSDESC;     
-  SET refOut.MsgRsHdr.Status.EndDt        = CURRENT_TIMESTAMP;
-  
-  -- Información del contacId asignado en AST
-  SET refOut.ContactInfo.ContactId = refDataRes.contact_info.name;
-  
-  -- Información de datos del contacto
-  SET refOut.ContactInfo.ContactName                     = refDataRes.contact.contact_info.name;
-  SET refOut.ContactInfo.NickName                        = refDataRes.contact.contact_info.nickname;
-  SET refOut.ContactInfo.GovIssueIdent.GovIssueIdentType = refDataRes.contact.contact_info.id_type;
-  SET refOut.ContactInfo.GovIssueIdent.IdentSerialNum    = refDataRes.contact.contact_info.id_number;
-        
-  -- Información de la cuenta
-  SET refOut.ContactInfo.DepAcctIdTo.DepAcctId.AcctId   = refDataRes.contact.account.account_number;
-  SET refOut.ContactInfo.DepAcctIdTo.DepAcctId.AcctType = refDataRes.contact.account.account_type;
-  
-  -- Información bancaria
-  SET refOut.ContactInfo.DepAcctIdTo.DepAcctId.BankInfo.BankId = refDataRes.contact.bank.bank_code;
-  SET refOut.ContactInfo.DepAcctIdTo.DepAcctId.BankInfo.Name   = refDataRes.contact.bank.bank_name;
-        
-  -- Marcado como favorito
-  SET refOut.ContactInfo.Favorite = refDataRes.contact.favorite;
+        SET refOut.MsgRsHdr.Status.StatusCode       					= CTE_STATUSCODE;
+        SET refOut.MsgRsHdr.Status.ServerStatusCode 					= CTE_SERVERSTATUSCODE;
+        SET refOut.MsgRsHdr.Status.Severity         					= CTE_SEVERITY;
+        SET refOut.MsgRsHdr.Status.StatusDesc       					= CTE_STATUSDESC;
+        SET refOut.MsgRsHdr.Status.AdditionalStatus.StatusCode 			= CTE_STATUSCODE;
+		SET refOut.MsgRsHdr.Status.AdditionalStatus.ServerStatusCode 	= CTE_SERVERSTATUSCODE;
+		SET refOut.MsgRsHdr.Status.AdditionalStatus.Severity 			= CTE_SEVERITY;
+		SET refOut.MsgRsHdr.Status.AdditionalStatus.StatusDesc 			= CTE_STATUSDESC;					
+		SET refOut.MsgRsHdr.Status.EndDt								= CURRENT_TIMESTAMP;
+		
+		-- Información del contacId asignado en AST
+		SET refOut.ContactInfo.ContactId = refDataRes.contact_id;
+		
+		-- Información de datos del contacto
+		SET refOut.ContactInfo.ContactName                     = refDataRes.contact.contact_info.name;
+		SET refOut.ContactInfo.NickName                        = refDataRes.contact.contact_info.nickname;
+		SET refOut.ContactInfo.GovIssueIdent.GovIssueIdentType = refDataRes.contact.contact_info.id_type;
+		SET refOut.ContactInfo.GovIssueIdent.IdentSerialNum    = refDataRes.contact.contact_info.id_number;
+		      
+		-- Información de la cuenta
+		SET refOut.ContactInfo.DepAcctIdTo.DepAcctId.AcctId   = refDataRes.contact.account.account_number;
+		SET refOut.ContactInfo.DepAcctIdTo.DepAcctId.AcctType = refDataRes.contact.account.account_type;
+		
+		-- Información bancaria
+		SET refOut.ContactInfo.DepAcctIdTo.DepAcctId.BankInfo.BankId = refDataRes.contact.bank.bank_code;
+		SET refOut.ContactInfo.DepAcctIdTo.DepAcctId.BankInfo.Name   = refDataRes.contact.bank.bank_name;
+		      
+		-- Marcado como favorito
+		SET refOut.ContactInfo.Favorite = refDataRes.contact.favorite;
     ELSE
         ----------------------------------------------------------------
         -- ERROR DE NEGOCIO
@@ -110,15 +110,15 @@ CREATE COMPUTE MODULE UpdateContactAccountAST_CmpResp
 
         CALL common.procedures.global.cache.getDataErrorCache(codeBackend, CTE_CACHE_ERRORS, CTE_F_DESTINY, value);
 
-        SET refOut.MsgRsHdr.Status.StatusCode            = COALESCE(value.codeError, CTE_CODE_DEFAULT);
-        SET refOut.MsgRsHdr.Status.ServerStatusCode      = codeBackend;
-        SET refOut.MsgRsHdr.Status.Severity              = value.severity;
-        SET refOut.MsgRsHdr.Status.StatusDesc            = value.descError;
-        SET refOut.MsgRsHdr.Status.AdditionalStatus.StatusCode    = value.codeError ; 
-  SET refOut.MsgRsHdr.Status.AdditionalStatus.ServerStatusCode  = codeBackend; 
-  SET refOut.MsgRsHdr.Status.AdditionalStatus.Severity    = value.severity; 
-  SET refOut.MsgRsHdr.Status.AdditionalStatus.StatusDesc    = COALESCE(mensajeBackend,value.descError);
-  SET refOut.MsgRsHdr.Status.EndDt        = CURRENT_TIMESTAMP;
+        SET refOut.MsgRsHdr.Status.StatusCode       					= COALESCE(value.codeError, CTE_CODE_DEFAULT);
+        SET refOut.MsgRsHdr.Status.ServerStatusCode 					= codeBackend;
+        SET refOut.MsgRsHdr.Status.Severity         					= value.severity;
+        SET refOut.MsgRsHdr.Status.StatusDesc       					= value.descError;
+        SET refOut.MsgRsHdr.Status.AdditionalStatus.StatusCode 			= value.codeError ; 
+		SET refOut.MsgRsHdr.Status.AdditionalStatus.ServerStatusCode 	= codeBackend; 
+		SET refOut.MsgRsHdr.Status.AdditionalStatus.Severity 			= value.severity; 
+		SET refOut.MsgRsHdr.Status.AdditionalStatus.StatusDesc 			= COALESCE(mensajeBackend,value.descError);
+		SET refOut.MsgRsHdr.Status.EndDt								= CURRENT_TIMESTAMP;
     END IF;
 
     RETURN TRUE;
