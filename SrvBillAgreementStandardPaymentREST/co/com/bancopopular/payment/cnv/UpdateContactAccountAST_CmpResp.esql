@@ -81,7 +81,7 @@ CREATE COMPUTE MODULE UpdateContactAccountAST_CmpResp
 		SET refOut.MsgRsHdr.Status.AdditionalStatus.ServerStatusCode 	= CTE_SERVERSTATUSCODE;
 		SET refOut.MsgRsHdr.Status.AdditionalStatus.Severity 			= CTE_SEVERITY;
 		SET refOut.MsgRsHdr.Status.AdditionalStatus.StatusDesc 			= CTE_STATUSDESC;					
-		SET refOut.MsgRsHdr.Status.EndDt								= CURRENT_TIMESTAMP;
+		SET refOut.MsgRsHdr.Status.EndDt								= CURRENT_TIMESTAM;
 		
 		-- Información del contacId asignado en AST
 		SET refOut.ContactInfo.ContactId = refDataRes.contact_id;
