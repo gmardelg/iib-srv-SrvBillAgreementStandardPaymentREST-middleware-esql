@@ -53,7 +53,7 @@ CREATE COMPUTE MODULE UpdateContactAccountAST_CmpReq
 		DECLARE refOut REFERENCE TO OutputRoot.JSON.Data;
 		
 		-- Información de datos del contacto
-		SET refOut.contact.contact_info.id_type   = CURRENT_TIMESTAMP;
+		SET refOut.contact.contact_info.id_type   = refInp.ContactInfo.GovIssueIdent.GovIssueIdentType;
 		SET refOut.contact.contact_info.id_number = refInp.ContactInfo.GovIssueIdent.IdentSerialNum;
 		SET refOut.contact.contact_info.name      = refInp.ContactInfo.ContactName;
 		SET refOut.contact.contact_info.nickname  = refInp.ContactInfo.NickName;
