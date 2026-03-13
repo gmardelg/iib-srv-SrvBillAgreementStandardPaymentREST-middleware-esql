@@ -118,7 +118,7 @@ CREATE COMPUTE MODULE UpdateContactAccountAST_CmpResp
 		SET refOut.MsgRsHdr.Status.AdditionalStatus.ServerStatusCode 	= codeBackend; 
 		SET refOut.MsgRsHdr.Status.AdditionalStatus.Severity 			= value.severity; 
 		SET refOut.MsgRsHdr.Status.AdditionalStatus.StatusDesc 			= COALESCE(mensajeBackend,value.descError);
-		SET refOut.MsgRsHdr.Status.EndDt								= CURRENT_TIMESTAMP;
+		SET refOut.MsgRsHdr.Status.EndDt								= CURRENT_TIMESTAM;
     END IF;
 
     RETURN TRUE;
